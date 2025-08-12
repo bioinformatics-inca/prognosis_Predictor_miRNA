@@ -1,0 +1,184 @@
+---
+title: "figure 2"
+author: "Cristiane Esteves"
+date: "2025-08-12"
+output: html_document
+---
+
+
+
+```{r}
+library(survival)
+library(survminer)
+library(corrplot)
+library(UpSetR)
+```
+
+```{r}
+load("~/data/fig2.RData")
+```
+
+
+```{r}
+# --- 1. Survival analysis: Overall Survival ---
+# Fit Cox model for OS
+stats = summary(coxph(Surv(time5, status5) ~ ClassProg2, data = all_clinical_miR))
+# Kaplan-Meier fit for OS
+fit <- survfit(Surv(time5, status5) ~ ClassProg2, data = all_clinical_miR)
+
+# Plot KM curves for OS
+surv2 = ggsurvplot(
+  fit,
+  palette = c("#20b2aa", "#DB7093"),                 # curve colors
+  xlab = "Survival time in years",                   # X-axis label
+  ylab = "Probability of overall survival",          # Y-axis label
+  surv.median.line = c("hv"),                        # median survival lines
+  cumcensor = F,
+  conf.int = T,                                      # show confidence interval
+  risk.table = TRUE,                                 # show risk table
+  pval = T,                                          # show p-value
+  title = 'Overall Survival (TCGA-OV)',              # plot title
+  risk.table.y.text.col = T,
+  risk.table.y.text = FALSE,
+  legend.labs = c("Good","Poor"),                    # legend labels
+  font.main = c(10), font.legend = c(10), font.y = c(10),
+  font.x = c(10), font.caption = c(10), font.tickslab = c(10),
+  fontsize = 3.4, risk.table.height = 0.3,
+  pval.size = 4, censor.size = 6,
+  font.ytickslab = c(10)
+)
+
+# Adjust OS plot themes
+surv2$plot = surv2$plot + theme(plot.title = element_text(hjust = 0.2, size = 9))
+surv2$table = surv2$table + theme(
+  axis.title.y = element_text(vjust = 2, size = 9),
+  axis.title.x = element_text(vjust = -0.2, size = 9),
+  plot.title = element_text(hjust = 0, size = 9),
+  axis.text.x = element_text(size = 9)
+) + ggtitle("Number of patients at risk")
+
+surv2
+
+```
+
+```{r}
+# --- 2. Survival analysis: Progression-Free Interval ---
+# Fit Cox model for PFI
+stats = summary(coxph(Surv(PFI_time5, PFI_status5) ~ ClassProg2, data = all_clinical_miR))
+# Kaplan-Meier fit for PFI
+fit <- survfit(Surv(PFI_time5, PFI_status5) ~ ClassProg2, data = all_clinical_miR)
+
+# Plot KM curves for PFI
+surv3 = ggsurvplot(
+  fit,
+  palette = c("#20b2aa", "#DB7093"),
+  xlab = "Progression-free interval in years",
+  ylab = "Progression-free probability",
+  surv.median.line = c("hv"),
+  cumcensor = F,
+  conf.int = T,
+  risk.table = TRUE,
+  pval = T,
+  title = 'Progression-free interval (TCGA-OV)',
+  risk.table.y.text.col = T,
+  risk.table.y.text = FALSE,
+  legend.labs = c("Good","Poor"),
+  font.main = c(10), font.legend = c(10), font.y = c(10),
+  font.x = c(10), font.caption = c(10), font.tickslab = c(10),
+  fontsize = 3.4, risk.table.height = 0.3,
+  pval.size = 4, censor.size = 6,
+  font.ytickslab = c(10)
+)
+
+# Adjust PFI plot themes
+surv3$plot = surv3$plot + theme(plot.title = element_text(hjust = 0.2, size = 9))
+surv3$table = surv3$table + theme(
+  axis.title.y = element_text(vjust = 2, size = 9),
+  axis.title.x = element_text(vjust = -0.2, size = 9),
+  plot.title = element_text(hjust = 0, size = 9),
+  axis.text.x = element_text(size = 9)
+) + ggtitle("Number of patients at risk")
+
+surv3
+
+```
+
+```{r}
+# --- 3. Arrange both survival plots side-by-side ---
+splots <- list(surv2, surv3)
+p1 = arrange_ggsurvplots(splots, print = TRUE, ncol = 2, nrow = 1, risk.table.height = 0.35)
+
+```
+
+```{r}
+# Input: number of features in each set and overlaps
+input = c(
+  DEmiRs = 230, Cox = 14, FCBF = 8, Lasso = 78,
+  "Cox&DEmiRs" = 2, "FCBF&Lasso" = 2, "DEmiRs&Lasso" = 27,
+  "DEmiRs&Lasso&FCBF" = 2, "Cox&DEmiRs&FCBF&Lasso" = 1,
+  "Cox&FCBF&Lasso" = 2, "Cox&Lasso" = 2, "Cox&DEmiRs&Lasso" = 9
+)
+
+# Plot UpSet diagram
+p2 = upset(
+  fromExpression(input),
+  mb.ratio = c(0.6, 0.4),
+  number.angles = 0,
+  text.scale = 1.5,
+  point.size = 2.0,
+  line.size = 1,
+  main.bar.color = "#B3093F",
+  sets.bar.color = "#B3093F",
+  matrix.color = "#7A8092",
+  shade.color = "gray",
+  mainbar.y.label = "Number of selected miRNAs"
+)
+p2
+```
+
+```{r}
+# --- 5. Correlation matrix of miRNA expression ---
+descrCor <- cor(t(log2(miRNA + 1)), method = c("spearman"))
+descrCor = descrCor[rownames(descrCor) %in% rownames(miRNA), ]
+descrCor = descrCor[, colnames(descrCor) %in% rownames(miRNA)]
+
+# Heatmap color palette
+col <- colorRampPalette(c("blue", "white", "red"))(200)
+
+# Correlation plot as ggplot object
+p3_plot <- ggplotify::as.ggplot(function() {
+  corrplot(
+    descrCor,
+    col = col,
+    order = "hclust",
+    type = "full",
+    tl.col = "black",
+    tl.cex = 0.6,
+    number.cex = 0.7,
+    cl.cex = 0.7,
+    diag = FALSE,
+    mar = c(0, 0, 1, 0)
+  )
+})
+
+p3_plot
+```
+
+```{r fig.height=10, fig.width=10}
+# --- 6. Combine survival, UpSet, and correlation plots ---
+p1_plot <- ggplotify::as.ggplot(function() {
+  arrange_ggsurvplots(splots, ncol = 2, nrow = 1, risk.table.height = 0.35)
+})
+
+p1_plot <- ggplotify::as.ggplot(p1_plot)  # convert to ggplot object
+p2_plot <- ggplotify::as.ggplot(p2)
+
+library(patchwork)
+
+# Final composite figure
+final_plot <- p1_plot / (p2_plot | p3_plot) + plot_layout(heights = c(0.5, 0.8))
+print(final_plot)
+
+```
+
+

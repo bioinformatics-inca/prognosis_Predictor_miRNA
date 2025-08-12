@@ -1,0 +1,167 @@
+---
+title: "fig3. feature importance of the model in HGSOC patients from the TCGA-OV cohort - (KM, Score Prognosis, heatmap)"
+author: "Cristiane Esteves"
+date: "2025-08-11"
+output: html_document
+---
+
+```{r}
+#.libPaths()
+library(readr)        # read/write data
+library(survival)     # Cox model and Surv objects
+library(survminer)    # ggplot-based survival plots
+library(patchwork)    # combine ggplots
+library(dplyr)        # data manipulation
+library(ggplot2)      # plotting
+library(RColorBrewer) # color palettes
+library(gridExtra)    # arrange grobs
+library(pheatmap)     # heatmap plotting
+```
+
+```{r}
+load("~/data/fig3.RData")    # load pre-saved R objects used below
+```
+
+```{r}
+# Fit Cox model and get summary
+stats = summary(coxph(Surv(time5, Pred) ~ ClassProg2, data = preditos))  # Cox PH for ClassProg2
+fit <- survfit(Surv(time5, Pred) ~ ClassProg2, data = preditos)         # KM fit by ClassProg2
+
+# Create Kaplan-Meier plot with risk table and p-value
+surv2 = ggsurvplot(
+  fit,
+  palette = c("#20b2aa", "#DB7093"), # curve colors
+  xlab = "Survival time in years",
+  ylab = "Probability of overall survival",
+  surv.median.line = c("hv"),        # draw median survival lines
+  cumcensor = F,
+  conf.int = F,
+  risk.table = TRUE,                 # show number at risk table
+  pval = T,                          # show p-value
+  title = 'Prognosis group predicted by the model (RF)',
+  risk.table.y.text.col = T,
+  risk.table.y.text = FALSE,
+  legend.labs = c("Good", "Poor"),   # legend labels
+  font.main = c(10), font.legend = c(10), font.y = c(10),
+  font.x = c(10), font.caption = c(10), font.tickslab = c(10),
+  fontsize = 3, risk.table.height = 0.3, pval.size = 4, censor.size = 6,
+  font.ytickslab = c(10)
+)
+
+# Tweak plot and table themes
+surv2$plot = surv2$plot + theme(plot.title = element_text(hjust = 0.2, size = 9))
+surv2$table = surv2$table + theme(
+  axis.title.y = element_text(vjust = 2, size = 9),
+  axis.title.x = element_text(vjust = -0.2, size = 9),
+  plot.title = element_text(hjust = 0, size = 9),
+  axis.text.x = element_text(size = 9)
+) + ggtitle("Number of patients at risk")
+
+surv2  # print the survival plot object
+
+```
+
+
+```{r fig.height=10, fig.width=10}
+# --- 2. Expression and normalization ---
+miRNA_cols <- grep("^hsa_mir", names(data), value = TRUE)  # select miRNA columns by pattern
+expr <- data[, miRNA_cols]                                 # subset expression matrix
+rownames(expr) <- data$bcr_patient_barcode                 # set sample IDs as row names
+
+# Z-transform / log-normalize (here using log2)
+expr_scaled <- log2(expr + 1)  # log2 transform to stabilize variance
+
+# --- 3. Prepare data for Cox model ---
+cox_data <- as.data.frame(expr)   # make a dataframe of raw expression
+cox_data$time <- data$time5       # add survival time
+cox_data$status <- data$status5   # add event/censoring status
+
+# --- 4. Fit multivariable Cox using all miRNAs ---
+cox_formula <- as.formula(paste("Surv(time, status) ~", paste(miRNA_cols, collapse = "+")))
+cox_model <- coxph(cox_formula, data = cox_data)  # fit Cox model
+
+# --- 5. Compute risk score (linear predictor) ---
+risk_score <- predict(cox_model, type = "lp")    # linear predictor = risk score
+names(risk_score) <- data$bcr_patient_barcode    # name scores by sample ID
+
+# Order samples by risk
+ordered_samples <- names(sort(risk_score))
+expr_ordered <- expr_scaled[ordered_samples, , drop = FALSE]  # rows = samples in risk order
+
+# --- 6. Plot risk profile and heatmap ---
+# Top: risk score line plot
+risk_df <- data.frame(Sample = 1:length(risk_score), RiskScore = sort(risk_score))
+risk_plot <- ggplot(risk_df, aes(x = Sample, y = RiskScore)) +
+  geom_line(color = "#585FD2") +
+  theme_minimal() +
+  labs(y = "Risk score index") +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+# Heatmap color palette (not used later; alternative palette defined in pheatmap call)
+heatmap_colors <- colorRampPalette(rev(brewer.pal(n = 11, name = "RdBu")))(100)
+
+# Subset clinical annotations to ordered samples
+all = all_clinical_miR[rownames(expr_ordered),]  # match order by rownames
+
+# Prepare annotation dataframe for pheatmap (columns correspond to samples)
+annotation_df <- data.frame(
+  MUC16_level = log2(all$MUC16 + 1),               # continuous annotation (log-transformed)
+  HRD_status = factor(all$HRD_status),             # categorical annotation
+  Age_at_Diagnosis = ifelse(all$Age_at_Diagnosis >= 50, ">50", "<50")  # binarize age
+)
+rownames(annotation_df) <- rownames(expr_ordered)  # ensure annotation rows align with samples
+
+# Define colors for annotations
+ann_colors <- list(
+  HRD_status = c("HRD positive" = "#9E9AC8", "HRD negative" = "#54278F"),
+  MUC16_level = colorRampPalette(c("gray", "#6BAED6", "#08306B"))(100),
+  Age_at_Diagnosis = c(">50" = "#9E0142", "<50" = "#56B4E9")
+)
+
+# Draw pheatmap and capture as grob
+heatmap_grob <- grid::grid.grabExpr({
+  pheatmap(t(expr_ordered),                 # transpose so rows = miRNAs, cols = samples
+           cluster_rows = FALSE,            # do not cluster rows
+           cluster_cols = FALSE,            # do not cluster columns
+           show_colnames = FALSE,
+           show_rownames = TRUE,
+           legend_breaks = c(-2, 0, 2),
+           scale = 'row',                   # scale each miRNA (row) to mean=0 sd=1
+           color = colorRampPalette(c("blue", "white", "red"))(100),
+           fontsize_row = 8,
+           annotation_col = annotation_df,  # add sample annotations below the heatmap
+           annotation_colors = ann_colors)
+})
+
+# Combine risk plot and heatmap vertically
+top = grid.arrange(risk_plot, heatmap_grob, heights = c(2, 4))
+
+# Merge risk scores with clinical table for downstream Cox
+risk_df$bcr_patient_barcode = rownames(risk_df)    # add sample IDs to risk dataframe
+names(all)[1] = "bcr_patient_barcode"              # ensure first column is sample ID
+all = merge(risk_df, all, by = "bcr_patient_barcode")  # merge by sample ID
+
+names(all)[3] = "Score_prognosis"                  # rename merged score column
+
+# Build multivariate Cox formula including clinical covariates + prognostic score
+f1 <- as.formula(paste("Surv(time = all$time5, event =  all$status5) ~ ",
+                       paste(c("Stage", "Age_at_Diagnosis","MUC16","Subtype_mRNA","HRD_status","Score_prognosis"), collapse= "+")))
+
+fit.coxph <- coxph(f1, data = all)                 # fit multivariate Cox
+summary(fit.coxph)                                 # show results
+ggforest = ggforest(fit.coxph, data = all, main = "Multivariate analysis  \nUp to 5-year Overall Survival (Score prognosis with 11 miRNAs)")
+
+library(ggplotify)  # convert grid/grob objects to ggplot objects
+library(patchwork)  # already loaded, used again here
+
+# Convert the combined top (grob) to a ggplot object and stack with forest plot
+top_plot <- ggplotify::as.ggplot(top)
+final_plot <- ggforest / top_plot + plot_layout(heights = c(1.5, 1.2))  # stack forest above heatmap
+
+# Print combined figure
+print(final_plot)
+
+```
+
