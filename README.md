@@ -5,3 +5,10 @@ High-grade serous ovarian carcinoma (HGSOC) is the deadliest gynecological cance
 # Workflow
 ![This is an image](figure1.png)
 
+---------------------------------------------------------------------------------------------------------
+<sub><sup>
+Bioinformatics and Computational Biology Laboratory (LBBC-INCA);
+Brazilian National Cancer Institute (INCA-RJ) | LBBC team (https://sites.google.com/view/bioinformaticainca-en/home-en)
+Developed by Cristiane Esteves, Ms.C
+</sup></sub>
+
