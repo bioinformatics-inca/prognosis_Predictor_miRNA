@@ -6,6 +6,74 @@ E-mail      : cristiane.esteves@ensino.inca.gov.br
 ================================================================================
 
 ================================================================================
+IMPORTANT CLINICAL AND TECHNICAL DEFINITIONS
+================================================================================
+
+Outcome definition
+------------------
+- Poor prognosis:
+    Patients who died within 3 years after diagnosis/follow-up start.
+
+- Good prognosis:
+    Patients who remained alive beyond 3 years.
+
+Handling of censored patients
+-----------------------------
+- Patients censored before completing 3 years of follow-up were excluded
+  from the binary prognosis classification analysis because their final
+  outcome status could not be confidently assigned as either "Poor"
+  or "Good".
+
+- This strategy was adopted to reduce label ambiguity and avoid introducing
+  survival misclassification bias into the supervised machine learning models.
+
+Clinical covariates
+-------------------
+- The following clinical variables were always included as candidate features
+  during Recursive Feature Elimination (RFE):
+
+    * FIGO stage
+    * MUC16 (CA-125)
+    * Age at diagnosis (age_at_index)
+
+- Depending on the RFE selection step, these variables could either remain
+  or be excluded from the final selected subset for a specific model.
+
+Expression scale harmonization
+------------------------------
+Training cohort (TCGA RNA-seq)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- miRNA expression values from TCGA RNA-seq data were represented as
+  normalized Counts Per Million (CPM) values.
+
+- CPM normalization adjusts raw sequencing counts according to library size,
+  allowing expression comparability across samples.
+
+- These CPM-normalized values were used as the input expression scale during
+  model training.
+
+External cohort (RT-qPCR)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+- RT-qPCR miRNA measurements were initially represented as -deltaCt values.
+
+- To harmonize the external validation cohort with the TCGA RNA-seq training
+  scale, RT-qPCR values were transformed using:
+
+        relative_expression = 2^(-deltaCt)
+
+- This transformation approximates fold-expression values and improves
+  comparability between platforms.
+
+MUC16 preprocessing
+-------------------
+- MUC16 (CA-125) values in the external cohort were log2-transformed:
+
+        log2(MUC16 + 1)
+
+- This preprocessing step was applied to reduce skewness and match the
+  distribution scale used during model training.
+
+================================================================================
 ml_pipeline_miRNA_clinical.py
 ================================================================================
 Machine Learning pipeline for ovarian cancer prognosis classification,
