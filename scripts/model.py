@@ -366,10 +366,10 @@ def calibration_metrics_advanced(y_true, probs):
 # =============================================================================
 
 # Load training cohort (internal dataset with miRNA + clinical features)
-df_tr = pd.read_csv('top10_tcga.csv', index_col=0)
+df_tr = pd.read_csv('/data/top10_tcga.csv', index_col=0)
 
 # Load external validation cohort
-df_ex = pd.read_csv('PCR_inca.csv', index_col=0)
+df_ex = pd.read_csv('/data/PCR_inca.csv', index_col=0)
 
 # Log2-transform MUC16 (CA-125) in the external cohort if present,
 # to match the scale used during training
