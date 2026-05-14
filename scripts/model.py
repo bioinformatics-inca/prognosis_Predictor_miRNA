@@ -380,8 +380,8 @@ if 'MUC16' in df_ex.columns:
 df_tr['progn'] = df_tr['progn'].map({'Poor': 1, 'Good': 0})
 df_ex['ClassProg'] = df_ex['ClassProg'].map({'Poor': 1, 'Good': 0})
 
-# Subset of external cohort restricted to FIGO stages II-IV
-df_ex_filt = df_ex[df_ex['figo_stage'].isin([2, 3, 4])]
+# Subset of external cohort restricted to FIGO stages III-IV
+df_ex_filt = df_ex[df_ex['figo_stage'].isin([3, 4])]
 
 
 # =============================================================================
@@ -703,10 +703,10 @@ for N_FEATURES in range(3, 14):  # Sweep number of selected features from 3 to 1
         # ── External validation ───────────────────────────────────────────────
         # Evaluate on two external sets:
         #   "FULL_rel"  -> all external samples (back-transformed miRNA values)
-        #   "II_IV_rel" -> FIGO stages II-IV only
+        #   "III_IV_rel" -> FIGO stages III-IV only
         for label, X_set, y_set in [
             ("FULL_rel",  X_rel_full, df_ex['ClassProg']),
-            ("II_IV_rel", X_rel_filt, df_ex_filt['ClassProg'])
+            ("III_IV_rel", X_rel_filt, df_ex_filt['ClassProg'])
         ]:
 
             p_e = model_calib.predict_proba(X_set)[:, 1]
@@ -763,7 +763,7 @@ for N_FEATURES in range(3, 14):  # Sweep number of selected features from 3 to 1
 
 # Save full results table with all metrics, CIs, and calibration statistics
 pd.DataFrame(results).to_csv(
-    "resultados_finais_estatistica_rigorosa_RFE.csv",
+    "results_final_RFE.csv",
     index=False
 )
 
