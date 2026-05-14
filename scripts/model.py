@@ -559,7 +559,7 @@ for N_FEATURES in range(3, 14):  # Sweep number of selected features from 3 to 1
 
     for name, config in models_config.items():
 
-        print("🚀", name)
+        print("---", name)
 
         # Build the full pipeline: scaler -> sampler -> RFE -> classifier
         pipe = Pipeline([
@@ -672,7 +672,7 @@ for N_FEATURES in range(3, 14):  # Sweep number of selected features from 3 to 1
         # Calibration metrics for the internal hold-out
         cal_intercept_int, cal_slope_int, slope_sd_int, slope_ci_int = calibration_metrics_advanced(y_test, probs_h)
 
-        print("\n📊 INTERNAL HOLD-OUT")
+        print("\n--- INTERNAL HOLD-OUT")
         print("AUC:", auc_int, f"IC95% [{auc_low_h:.3f}-{auc_high_h:.3f}]")
         print("Recall:", rec_int, f"IC95% [{rec_low_h:.3f}-{rec_high_h:.3f}]")
         print("BalAcc:", bal_int)
@@ -726,7 +726,7 @@ for N_FEATURES in range(3, 14):  # Sweep number of selected features from 3 to 1
             # Calibration metrics for the external set
             c_int_e, c_slope_e, c_slope_sd_e, c_slope_ci_e = calibration_metrics_advanced(y_set, p_e)
 
-            print(f"\n🌍 EXTERNAL VALIDATION - {label}")
+            print(f"\n-- EXTERNAL VALIDATION - {label}")
             print("AUC:", roc_auc_score(y_set, p_e) if len(np.unique(y_set)) > 1 else np.nan)
             print("Recall:", recall_score(y_set, y_e))
             print("BalAcc:", balanced_accuracy_score(y_set, y_e))
