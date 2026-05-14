@@ -61,18 +61,13 @@ prognosis_Predictor_miRNA/
 
 ### Training cohort — TCGA-OV (public)
 
-Training data derives from **The Cancer Genome Atlas Ovarian Cancer (TCGA-OV)** cohort, publicly available via the [GDC Data Portal](https://portal.gdc.cancer.gov/).
+Training data derives from **The Cancer Genome Atlas Ovarian Cancer (TCGA-OV)** cohort, publicly available via the GSE164767.
 
 - **Cohort:** HGSOC patients with miRNA expression profiling and clinical data
 - **Target:** Overall Survival prognosis (Poor vs Good)
-- **miRNA quantification:** −ΔCt values (RT-qPCR normalized)
+- **miRNA quantification:** CPM (> 15 RPM)
 - **Clinical variables:** age at diagnosis, FIGO stage, CA-125 (MUC16)
 
-To download the data:
-1. Access [https://portal.gdc.cancer.gov/](https://portal.gdc.cancer.gov/)
-2. Filter by project: `TCGA-OV`
-3. Select miRNA expression quantification files and clinical data
-4. Preprocess as described in `scripts/ml_pipeline_miRNA_clinical.py`
 
 ### External validation cohort — INCA-OV
 
@@ -84,8 +79,6 @@ The external cohort comprises HGSOC patients from the Brazilian National Cancer 
 | Adjuvant | Adjuvant chemotherapy (all stages) |
 | NACT | Neoadjuvant chemotherapy |
 | Stage III–IV + Adjuvant | FIGO stages III–IV, adjuvant chemotherapy |
-
-> ⚠️ The INCA-OV cohort is subject to institutional data governance. Access requests should be directed to the LBBC-INCA team at cristiane.esteves@ensino.inca.gov.br.
 
 ---
 
