@@ -52,21 +52,9 @@ Training cohort (TCGA RNA-seq)
 - These CPM-normalized values were used as the input expression scale during
   model training.
 
-External cohort (RT-qPCR)
-~~~~~~~~~~~~~~~~~~~~~~~~~
-- RT-qPCR miRNA measurements were initially represented as -deltaCt values.
-
-- To harmonize the external validation cohort with the TCGA RNA-seq training
-  scale, RT-qPCR values were transformed using:
-
-        relative_expression = 2^(-deltaCt)
-
-- This transformation approximates fold-expression values and improves
-  comparability between platforms.
-
 MUC16 preprocessing
 -------------------
-- MUC16 (CA-125) values in the external cohort were log2-transformed:
+- MUC16 (CA-125) values in the discovery cohort were log2-transformed:
 
         log2(MUC16 + 1)
 
@@ -436,21 +424,6 @@ def calibration_metrics_advanced(y_true, probs):
 # Load training cohort (internal dataset with miRNA + clinical features)
 df_tr = pd.read_csv('/data/top10_tcga.csv', index_col=0)
 
-# Load external validation cohort
-df_ex = pd.read_csv('/data/PCR_inca.csv', index_col=0)
-
-# Log2-transform MUC16 (CA-125) in the external cohort if present,
-# to match the scale used during training
-if 'MUC16' in df_ex.columns:
-    df_ex['MUC16'] = np.log2(df_ex['MUC16'] + 1)
-
-# Encode target variable as binary: Poor -> 1 (event), Good -> 0
-df_tr['progn'] = df_tr['progn'].map({'Poor': 1, 'Good': 0})
-df_ex['ClassProg'] = df_ex['ClassProg'].map({'Poor': 1, 'Good': 0})
-
-# Subset of external cohort restricted to FIGO stages III-IV
-df_ex_filt = df_ex[df_ex['figo_stage'].isin([3, 4])]
-
 
 # =============================================================================
 # FEATURE DEFINITION
@@ -481,28 +454,6 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=y,
     random_state=SEED
 )
-
-
-# =============================================================================
-# EXTERNAL VALIDATION SETS — SCALE CORRECTION
-# =============================================================================
-
-# Full external cohort and FIGO-filtered subset
-X_ex = df_ex[features]
-X_ex_filt = df_ex_filt[features]
-
-# Columns that correspond to miRNA features
-cols_mir = [c for c in features if 'mir' in c.lower()]
-
-# Back-transform miRNA values from -delta-Ct to relative expression (2^(-delta-Ct))
-# so the external cohort is on the same numeric scale as the training data
-X_rel_full = X_ex.copy()
-X_rel_full[cols_mir] = 2**(-X_ex[cols_mir])
-
-X_rel_filt = X_ex_filt.copy()
-X_rel_filt[cols_mir] = 2**(-X_ex_filt[cols_mir])
-
-
 # =============================================================================
 # MODEL DEFINITIONS & HYPERPARAMETER GRIDS
 # =============================================================================
@@ -767,60 +718,6 @@ for N_FEATURES in range(3, 14):  # Sweep number of selected features from 3 to 1
             "Brier_int":  f"{brier_m:.3f} ± {brier_sd:.3f} [{brier_low:.3f}-{brier_high:.3f}]",
             "BSS_int":    f"{bss_int:.3f}"
         }
-
-        # ── External validation ───────────────────────────────────────────────
-        # Evaluate on two external sets:
-        #   "FULL_rel"  -> all external samples (back-transformed miRNA values)
-        #   "III_IV_rel" -> FIGO stages III-IV only
-        for label, X_set, y_set in [
-            ("FULL_rel",  X_rel_full, df_ex['ClassProg']),
-            ("III_IV_rel", X_rel_filt, df_ex_filt['ClassProg'])
-        ]:
-
-            p_e = model_calib.predict_proba(X_set)[:, 1]
-            y_e = (p_e >= t_oof).astype(int)
-
-            # Bootstrap AUC CI for external set
-            auc_sd_e, auc_low_e, auc_high_e = get_auc_bootstrap(y_set, p_e)
-
-            # Exact binomial CI for recall on the external set
-            n1_e = int(sum(y_set))
-            tp_e = int(sum((y_set == 1) & (y_e == 1)))
-            rec_low_e, rec_high_e = clopper_pearson(tp_e, n1_e)
-
-            brier_ext = brier_score_loss(y_set, p_e)
-            bss_ext   = 1 - (brier_ext / brier_baseline)
-
-            # Calibration metrics for the external set
-            c_int_e, c_slope_e, c_slope_sd_e, c_slope_ci_e = calibration_metrics_advanced(y_set, p_e)
-
-            print(f"\n-- EXTERNAL VALIDATION - {label}")
-            print("AUC:", roc_auc_score(y_set, p_e) if len(np.unique(y_set)) > 1 else np.nan)
-            print("Recall:", recall_score(y_set, y_e))
-            print("BalAcc:", balanced_accuracy_score(y_set, y_e))
-            print("VPN:", vpn_score(y_set, y_e))
-            print("Brier:", brier_ext)
-            print("Brier Skill Score:", bss_ext)
-            print("Calibration Intercept:", c_int_e)
-            print("Calibration Slope:", c_slope_e)
-            print("CM\n", confusion_matrix(y_set, y_e))
-
-            # Append external validation columns to the result row
-            row.update({
-                f"AUC_ext_{label}":           roc_auc_score(y_set, p_e) if len(np.unique(y_set)) > 1 else np.nan,
-                f"AUC_ext_{label}_SD":        auc_sd_e,
-                f"AUC_ext_{label}_IC95":      f"[{auc_low_e:.3f}-{auc_high_e:.3f}]",
-                f"Recall_ext_{label}":        recall_score(y_set, y_e),
-                f"Recall_ext_{label}_IC95":   f"[{rec_low_e:.3f}-{rec_high_e:.3f}]",
-                f"BalAcc_ext_{label}":        balanced_accuracy_score(y_set, y_e),
-                f"VPN_ext_{label}":           vpn_score(y_set, y_e),
-                f"Brier_ext_{label}":         brier_ext,
-                f"BSS_ext_{label}":           bss_ext,
-                f"CalIntercept_ext_{label}":  c_int_e,
-                f"CalSlope_ext_{label}":      c_slope_e,
-                f"CalSlope_ext_{label}_SD":   c_slope_sd_e,
-                f"CalSlope_ext_{label}_IC95": c_slope_ci_e
-            })
 
         results.append(row)
 
