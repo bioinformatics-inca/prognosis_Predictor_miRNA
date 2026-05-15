@@ -155,22 +155,12 @@ python scripts/model_evaluation_external.py
 - `roc_curve_<cohort>.png` — ROC curve with AUC (300 dpi)
 - Full metrics with 95% CI printed to console
 
-### Step 3 — Figures (R)
-
-Open and knit the notebooks in `Notebooks/`:
-
-| Notebook | Description | Requires |
-|---|---|---|
-| `figure2.Rmd` | KM curves (OS + PFI), UpSet diagram, correlation heatmap | `data/fig2.RData` |
-
-
 ---
 
 **Key methodological decisions:**
 - Threshold tuned on out-of-fold probabilities to prevent data leakage
 - Probability calibration: Platt scaling (sigmoid), 3-fold internal CV
 - Feature selection: RFE with LogisticRegression (C=0.01), sweeping 3–13 features
-
 ---
 
 ## Citation
