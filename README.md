@@ -4,7 +4,6 @@
 
 # miRNA-based Machine Learning Model for Risk Stratification in High-Grade Serous Ovarian Cancer
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20190859.svg)](https://doi.org/10.5281/zenodo.20190859)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![R](https://img.shields.io/badge/R-4.0%2B-276DC3)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
@@ -39,12 +38,8 @@ The trained model integrates **10 miRNA biomarkers** and **3 clinical variables*
 prognosis_Predictor_miRNA/
 │
 ├── data/                        # Input data files (see Data section below)
-│
-├── model/                       # Place the downloaded .pkl here (see Model section)
-│
-├── Notebooks/                   # R Markdown notebooks for figures
-│   ├── figure2.Rmd              # KM curves (OS + PFI), UpSet diagram, correlation matrix
-│   └── figure3.Rmd              # Risk score heatmap, multivariate Cox forest plot
+│   ├── top10_tcga.Rmd              # KM curves (OS + PFI), UpSet diagram, correlation matrix
+│   
 │
 ├── scripts/                     # Python scripts
 │   ├── ml_pipeline_miRNA_clinical.py    # Full ML training pipeline (RFE + GridSearch)
@@ -69,49 +64,9 @@ Training data derives from **The Cancer Genome Atlas Ovarian Cancer (TCGA-OV)** 
 - **Clinical variables:** age at diagnosis, FIGO stage, CA-125 (MUC16)
 
 
-### External validation cohort — INCA-OV
-
-The external cohort comprises HGSOC patients from the Brazilian National Cancer Institute (INCA-RJ), stratified by treatment type:
-
-| Subset | Description |
-|---|---|
-| Full cohort | All INCA-OV patients |
-| Adjuvant | Adjuvant chemotherapy (all stages) |
-| NACT | Neoadjuvant chemotherapy |
-| Stage III–IV + Adjuvant | FIGO stages III–IV, adjuvant chemotherapy |
-
 ---
 
-## Model
 
-### Download
-
-The trained model (~103 MB) is archived on Zenodo and **must be downloaded separately**:
-
-**🔗 [https://doi.org/10.5281/zenodo.20190859](https://doi.org/10.5281/zenodo.20190859)**
-
-Direct file: [`best_model_auc_v1.pkl`](https://zenodo.org/records/20190859/files/best_model_auc_v1.pkl?download=1)
-
-After downloading, place the file in the `model/` folder:
-
-```
-model/
-└── best_model_auc_v1.pkl
-```
-
-> The model file is too large (~103 MB) to be hosted directly on GitHub, hence its storage on Zenodo.
-
-### What is inside `best_model_auc_v1.pkl`
-
-The `.pkl` is a Python dictionary with three keys:
-
-| Key | Type | Description |
-|---|---|---|
-| `"model"` | `CalibratedClassifierCV` | Full fitted pipeline (see steps below) |
-| `"threshold"` | `float` | Decision threshold tuned to maximise balanced accuracy at recall ≥ 83% |
-| `"features"` | `list[str]` | Names of the features selected by RFE |
-
-**Internal pipeline steps — all preprocessing is encapsulated, no manual steps needed:**
 
 ```
 Raw input features
@@ -121,34 +76,6 @@ Raw input features
     └── 4. Classifier  → Best model selected by GridSearchCV
     └── 5. Calibration → Platt scaling (sigmoid), 3-fold CV
 ```
-
-### Quick usage
-
-```python
-import joblib
-import numpy as np
-
-# Load model (downloaded from Zenodo)
-model_obj = joblib.load("model/best_model_auc_v1.pkl")
-
-# ── Scale corrections BEFORE calling predict_proba ──────────────────────────
-# miRNA columns: if data is in -ΔCt format, convert to relative expression
-cols_mir = [c for c in features if 'mir' in c.lower()]
-X[cols_mir] = 2 ** (-X[cols_mir])
-
-# MUC16 (CA-125): must be log2-transformed
-X['MUC16'] = np.log2(X['MUC16'] + 1)
-
-# ── Inference ────────────────────────────────────────────────────────────────
-# The pipeline handles scaling + RFE internally
-probs = model_obj["model"].predict_proba(X)[:, 1]
-
-# Apply pre-tuned threshold (maximises balanced accuracy at recall >= 83%)
-preds = (probs >= model_obj["threshold"]).astype(int)
-# 1 = Poor prognosis  |  0 = Good prognosis
-```
-
----
 
 ## Required Input Features
 
@@ -168,11 +95,6 @@ Column names must **contain** the following substrings. Values must be in **rela
 | `23a` | `hsa_mir_23a` |
 | `106b` | `hsa_mir_106b` |
 | `151a` | `hsa_mir_151a` |
-
-> ⚠️ If your dataset provides **−ΔCt** values (as in the INCA-OV cohort), apply the back-transformation **before** inference:
-> ```python
-> X[cols_mir] = 2 ** (-X[cols_mir])
-> ```
 
 ### Clinical features — 3 variables
 
@@ -206,17 +128,6 @@ cd prognosis_Predictor_miRNA
 conda create -n mirna_prognosis python=3.9
 conda activate mirna_prognosis
 pip install -r requirements.txt
-
-```
-
-### 4. Download the model from Zenodo
-
-```bash
-# Create the model folder and download
-mkdir -p model
-wget -O model/best_model_auc_v1.pkl \
-  "https://zenodo.org/records/20190859/files/best_model_auc_v1.pkl?download=1"
-```
 
 ---
 
@@ -258,8 +169,6 @@ Open and knit the notebooks in `Notebooks/`:
 
 ---
 
-
-
 **Key methodological decisions:**
 - Threshold tuned on out-of-fold probabilities to prevent data leakage
 - Probability calibration: Platt scaling (sigmoid), 3-fold internal CV
@@ -270,7 +179,7 @@ Open and knit the notebooks in `Notebooks/`:
 ## Citation
 
 If you use this code or model in your research, please cite:
-
+The Lancet Health Americas [DOI}
 
 ---
 
