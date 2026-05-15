@@ -35,18 +35,29 @@ The trained model integrates **10 miRNA biomarkers** and **3 clinical variables*
 ## Repository Structure
 
 ```
+Repository Structure
 prognosis_Predictor_miRNA/
 │
-├── data/                        # Input data files (see Data section below)
-│   ├── top10_tcga.csv              # data for training
-│   
+├── Notebooks/
+│   └── ovarian_cancer_external_validation.ipynb   # External validation notebook (Jupyter)
 │
-├── scripts/                     # Python scripts
-│   ├── ml_pipeline_miRNA_clinical.py    # Full ML training pipeline (RFE + GridSearch)
-│   
+├── data/
+│   ├── Overall_Survival_(months).txt        # Overall survival data (TCGA-OV)
+│   ├── README.md                            # Data description
+│   ├── TCGA-OV_corrected_tumor_me...        # Corrected TCGA-OV tumor miRNA expression
+│   ├── fig2.RData                           # Pre-processed objects for Figure 2 (R)
+│   ├── fig4.RData                           # Pre-processed objects for Figure 4 (R)
+│   └── top10_tcga.csv                       # Top 10 miRNA and clinical features (TCGA-OV)
 │
-├── requirements.txt             # Python dependencies
-├── figure1.png                  # Workflow diagram
+├── scripts/
+│   ├── README.md                            # Scripts description
+│   ├── fig2.Rmd                             # Figure 2: KM curves, UpSet, correlation matrix
+│   ├── fig4.Rmd                             # Figure 4: 
+│   ├── ml_pipeline_miRNA_clinical.py        # Full ML training pipeline (RFE + GridSearch)
+│   └── prepare_miRNAisoform_prognosis_dataset.R        # miRNA isoform preprocessing script
+│
+├── requirements.txt                         # Python dependencies
+├── figure1.png                              # Pipeline workflow diagram
 └── README.md
 ```
 
@@ -56,17 +67,12 @@ prognosis_Predictor_miRNA/
 
 ### Training cohort — TCGA-OV (public)
 
-Training data derives from **The Cancer Genome Atlas Ovarian Cancer (TCGA-OV)** cohort, publicly available via the GSE164767.
+Training data derives from the publicly available The Cancer Genome Atlas ovarian cancer cohort (TCGA-OV). Batch-effect corrected miRNA isoform expression data were obtained from the GSE164767 dataset.
 
-- **Cohort:** HGSOC patients with miRNA expression profiling and clinical data
-- **Target:** Overall Survival prognosis (Poor (<3 years) vs Good (>= 3 years))
-- **miRNA quantification:** CPM (> 15 RPM)
-- **Clinical variables:** age at diagnosis, FIGO stage, CA-125 (MUC16)
-
-
----
-
-
+**Cohort**: High-grade serous ovarian carcinoma (HGSOC) patients from the The Cancer Genome Atlas ovarian cancer cohort (TCGA-OV), with batch-effect corrected miRNA isoform expression data from GSE164767 and matched clinical annotations
+**Target**: Overall survival prognosis (Poor: death before 3 years vs Good: survival ≥ 3 years)
+**miRNA quantification**: Normalized miRNA isoform expression values in CPM/RPM scale (median RPM > 15 filter applied)
+**Clinical variables**: Age at diagnosis, FIGO stage, and CA-125 expression (MUC16)
 
 ```
 Raw input features
