@@ -38,7 +38,7 @@ The trained model integrates **10 miRNA biomarkers** and **3 clinical variables*
 prognosis_Predictor_miRNA/
 │
 ├── data/                        # Input data files (see Data section below)
-│   ├── top10_tcga.Rmd              # data for training
+│   ├── top10_tcga.csv              # data for training
 │   
 │
 ├── scripts/                     # Python scripts
