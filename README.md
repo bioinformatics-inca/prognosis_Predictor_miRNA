@@ -81,7 +81,7 @@ Raw input features
 
 ### miRNA features — 10 biomarkers
 
-Column names must **contain** the following substrings. Values must be in **relative expression (2^(−ΔCt))** scale:
+Column names must **contain** the following substrings. Values must be in **CPM** scale:
 
 | Pattern | Example column name |
 |---|---|
