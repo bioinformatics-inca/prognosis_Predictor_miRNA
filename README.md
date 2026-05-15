@@ -271,16 +271,6 @@ Open and knit the notebooks in `Notebooks/`:
 
 If you use this code or model in your research, please cite:
 
-```bibtex
-@software{esteves2026mirna,
-  author    = {Cristiane Esteves},
-  title     = {bioinformatics-inca/prognosis\_Predictor\_miRNA: New},
-  year      = {2026},
-  publisher = {Zenodo},
-  doi       = {10.5281/zenodo.20190859},
-  url       = {https://doi.org/10.5281/zenodo.20190859}
-}
-```
 
 ---
 
