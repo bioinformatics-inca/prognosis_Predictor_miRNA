@@ -234,7 +234,7 @@ python scripts/ml_pipeline_miRNA_clinical.py
 
 **Outputs:**
 - `model/best_model_auc_v1.pkl` — best model (by internal AUC)
-- `resultados_finais_estatistica_rigorosa_RFE.csv` — full results table with all metrics and CIs
+- `results_RFE.csv` — full results table with all metrics and CIs
 
 ### Step 2 — External validation (Python)
 
