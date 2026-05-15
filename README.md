@@ -59,7 +59,7 @@ prognosis_Predictor_miRNA/
 Training data derives from **The Cancer Genome Atlas Ovarian Cancer (TCGA-OV)** cohort, publicly available via the GSE164767.
 
 - **Cohort:** HGSOC patients with miRNA expression profiling and clinical data
-- **Target:** Overall Survival prognosis (Poor vs Good)
+- **Target:** Overall Survival prognosis (Poor (<3 years) vs Good (>= 3 years))
 - **miRNA quantification:** CPM (> 15 RPM)
 - **Clinical variables:** age at diagnosis, FIGO stage, CA-125 (MUC16)
 
