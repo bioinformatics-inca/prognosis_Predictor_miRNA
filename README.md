@@ -43,7 +43,7 @@ prognosis_Predictor_miRNA/
 │
 ├── scripts/                     # Python scripts
 │   ├── ml_pipeline_miRNA_clinical.py    # Full ML training pipeline (RFE + GridSearch)
-│   └── model_evaluation_external.py     # External validation + metrics + figures
+│   
 │
 ├── requirements.txt             # Python dependencies
 ├── figure1.png                  # Workflow diagram
@@ -143,12 +143,6 @@ python scripts/ml_pipeline_miRNA_clinical.py
 **Outputs:**
 - `model/best_model_auc_v1.pkl` — best model (by internal AUC)
 - `results_final_RFE.csv` — full results table with all metrics and CIs
-
-### Step 2 — External validation (Python)
-
-```bash
-python scripts/model_evaluation_external.py
-```
 
 **Outputs:**
 - `cm_rf_<cohort>.png` — annotated confusion matrix (300 dpi)
