@@ -136,9 +136,6 @@ pip install -r requirements.txt
 Run in the following order:
 
 ### Step 1 — Train the model (Python)
-
-> Skip this step if you want to use the pre-trained model from Zenodo.
-
 ```bash
 python scripts/ml_pipeline_miRNA_clinical.py
 ```
