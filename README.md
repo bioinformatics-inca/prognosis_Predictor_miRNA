@@ -70,18 +70,13 @@ prognosis_Predictor_miRNA/
 Training data derives from the publicly available The Cancer Genome Atlas ovarian cancer cohort (TCGA-OV). Batch-effect corrected miRNA isoform expression data were obtained from the GSE164767 dataset.
 
 **Cohort**: High-grade serous ovarian carcinoma (HGSOC) patients from the The Cancer Genome Atlas ovarian cancer cohort (TCGA-OV), with batch-effect corrected miRNA isoform expression data from GSE164767 and matched clinical annotations
+
 **Target**: Overall survival prognosis (Poor: death before 3 years vs Good: survival ≥ 3 years)
+
 **miRNA quantification**: Normalized miRNA isoform expression values in CPM/RPM scale (median RPM > 15 filter applied)
+
 **Clinical variables**: Age at diagnosis, FIGO stage, and CA-125 expression (MUC16)
 
-```
-Raw input features
-    └── 1. Scaler      → RobustScaler or StandardScaler (or passthrough)
-    └── 2. Sampler     → SMOTE / RandomOverSampler / RandomUnderSampler (or passthrough)
-    └── 3. RFE         → Recursive Feature Elimination (LogisticRegression base, C=0.01)
-    └── 4. Classifier  → Best model selected by GridSearchCV
-    └── 5. Calibration → Platt scaling (sigmoid), 3-fold CV
-```
 
 ## Required Input Features
 
@@ -144,6 +139,15 @@ Run in the following order:
 ### Step 1 — Train the model (Python)
 ```bash
 python scripts/ml_pipeline_miRNA_clinical.py
+```
+
+```
+Raw input features
+    └── 1. Scaler      → RobustScaler or StandardScaler (or passthrough)
+    └── 2. Sampler     → SMOTE / RandomOverSampler / RandomUnderSampler (or passthrough)
+    └── 3. RFE         → Recursive Feature Elimination (LogisticRegression base, C=0.01)
+    └── 4. Classifier  → Best model selected by GridSearchCV
+    └── 5. Calibration → Platt scaling (sigmoid), 3-fold CV
 ```
 
 **Outputs:**
