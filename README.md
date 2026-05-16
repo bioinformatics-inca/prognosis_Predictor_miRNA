@@ -42,7 +42,6 @@ prognosis_Predictor_miRNA/
 │   └── ovarian_cancer_external_validation.ipynb   # External validation notebook - results (HTML)
 │
 ├── data/
-│   ├── Overall_Survival_(months).txt        # Overall survival data (TCGA-OV)
 │   ├── README.md                            # Data description
 │   ├── fig2.RData                           # Pre-processed objects for Figure 2 (R)
 │   ├── fig3.RData                           # Pre-processed objects for Figure 3 (R)
