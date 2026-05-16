@@ -26,7 +26,7 @@ library(dplyr)
 # ==============================================================================
 
 miRNAisoform_norm <- as.data.frame(
-  data.table::fread("/data/TCGA-OV_corrected_tumor_median15.txt")
+  data.table::fread("data/TCGA-OV_corrected_tumor_median15.txt")
 )
 
 # Set isomiR names as rownames
