@@ -422,7 +422,7 @@ def calibration_metrics_advanced(y_true, probs):
 # =============================================================================
 
 # Load training cohort (internal dataset with miRNA + clinical features)
-df_tr = pd.read_csv('/data/top10_tcga.csv', index_col=0)
+df_tr = pd.read_csv('data/top10_tcga.csv', index_col=0)
 
 
 # =============================================================================
