@@ -22,3 +22,5 @@ tabpfn==0.1.11
 xgboost==0.90
 yellowbrick==1.0.1
 zipp==3.15.0
+joblib==0.14.0
+torch==1.13.1
