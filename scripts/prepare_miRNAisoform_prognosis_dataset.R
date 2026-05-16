@@ -80,8 +80,24 @@ miRNAisoform_norm$sample <- NULL
 # LOAD SURVIVAL DATA
 # ==============================================================================
 
+# ==============================================================================
+# Download overall survival data from cBioPortal
+#
+# Study:
+# TCGA Ovarian Cancer (PanCancer Atlas)
+# https://www.cbioportal.org/study/summary?id=ov_tcga_pan_can_atlas_2018
+#
+# Instructions:
+# 1. Open the study link above
+# 2. Click on "Download"
+# 3. Download the clinical data file containing overall survival information
+# 4. Save the file as:
+#    "Overall_Survival_(months).txt"
+# 5. Place the file inside your working directory
+# ==============================================================================
+
 survival <- as.data.frame(
-  data.table::fread("/data/Overall_Survival_(months).txt")
+  data.table::fread("Overall_Survival_(months).txt")
 )
 
 # Keep only patients present in expression matrix
