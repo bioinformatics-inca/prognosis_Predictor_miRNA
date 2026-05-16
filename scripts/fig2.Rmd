@@ -17,7 +17,7 @@ library(UpSetR)     # UpSet diagram for set intersections
 ```
 
 ```{r}
-load("~/data/fig2.RData")  # Load pre-processed data: all_clinical_miR, miRNA
+load("~data/fig2.RData")  # Load pre-processed data: all_clinical_miR, miRNA
 ```
 
 
