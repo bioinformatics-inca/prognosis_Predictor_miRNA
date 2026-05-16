@@ -8,7 +8,7 @@
 ![R](https://img.shields.io/badge/R-4.0%2B-276DC3)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
-> **Cristiane Esteves, Ms.C** — Bioinformatics and Computational Biology Laboratory (LBBC)  
+> **Cristiane Esteves, M.Sc** — Bioinformatics and Computational Biology Laboratory (LBBC)  
 > Brazilian National Cancer Institute (INCA-RJ) | [LBBC team](https://sites.google.com/view/bioinformaticainca-en/home-en)  
 > ✉️ cristiane.esteves@ensino.inca.gov.br
 
@@ -39,7 +39,7 @@ Repository Structure
 prognosis_Predictor_miRNA/
 │
 ├── Notebooks/
-│   └── ovarian_cancer_external_validation.ipynb   # External validation notebook (Jupyter)
+│   └── ovarian_cancer_external_validation.ipynb   # External validation notebook - results (HTML)
 │
 ├── data/
 │   ├── Overall_Survival_(months).txt        # Overall survival data (TCGA-OV)
@@ -52,7 +52,7 @@ prognosis_Predictor_miRNA/
 ├── scripts/
 │   ├── README.md                            # Scripts description
 │   ├── fig2.Rmd                             # Figure 2: KM curves, UpSet, correlation matrix
-│   ├── fig4.Rmd                             # Figure 4: 
+│   ├── fig4.Rmd                             # Figure 4: miRNA–target interaction networks, exosome enrichment analyses, and pathway enrichment visualizations.
 │   ├── ml_pipeline_miRNA_clinical.py        # Full ML training pipeline (RFE + GridSearch)
 │   └── prepare_miRNAisoform_prognosis_dataset.R        # miRNA isoform preprocessing script
 │
@@ -67,7 +67,7 @@ prognosis_Predictor_miRNA/
 
 ### Training cohort — TCGA-OV (public)
 
-Training data derives from the publicly available The Cancer Genome Atlas ovarian cancer cohort (TCGA-OV). Batch-effect corrected miRNA isoform expression data were obtained from the GSE164767 dataset.
+Training data derives from the publicly available The Cancer Genome Atlas ovarian cancer cohort (TCGA-OV). Batch-effect corrected miRNA isoform expression data were obtained from the GSE164767 dataset, while corresponding clinical data were retrieved from cBioPortal for Cancer Genomics.
 
 **Cohort**: High-grade serous ovarian carcinoma (HGSOC) patients from the The Cancer Genome Atlas ovarian cancer cohort (TCGA-OV), with batch-effect corrected miRNA isoform expression data from GSE164767 and matched clinical annotations
 
@@ -151,12 +151,8 @@ Raw input features
 ```
 
 **Outputs:**
-- `model/best_model_auc_v1.pkl` — best model (by internal AUC)
+- `model.pkl` — best model (by internal AUC)
 - `results_final_RFE.csv` — full results table with all metrics and CIs
-
-**Outputs:**
-- `cm_rf_<cohort>.png` — annotated confusion matrix (300 dpi)
-- `roc_curve_<cohort>.png` — ROC curve with AUC (300 dpi)
 - Full metrics with 95% CI printed to console
 
 ---
@@ -170,7 +166,7 @@ Raw input features
 ## Citation
 
 If you use this code or model in your research, please cite:
-The Lancet Health Americas [DOI}
+The Lancet Health Americas [DOI]
 
 ---
 
