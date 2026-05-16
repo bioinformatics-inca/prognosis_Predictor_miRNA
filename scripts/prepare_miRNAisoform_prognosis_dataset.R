@@ -16,6 +16,10 @@
 # References:
 # https://academic.oup.com/narcancer/article/3/1/zcab007/6168271
 # https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE164767
+
+#Download the batch-effect corrected TCGA-OV miRNA expression dataset from GEO using the terminal command below.
+#wget -O TCGA_OV_corrected_tumor_median15.txt.gz \
+#"https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE164767&format=file&file=GSE164767%5FTCGA%2DOV%5Fcorrected%5Ftumor%5Fmedian15%2Etxt%2Egz"
 # ==============================================================================
 
 library(data.table)
