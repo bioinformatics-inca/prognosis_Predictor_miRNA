@@ -45,13 +45,13 @@ prognosis_Predictor_miRNA/
 │   ├── Overall_Survival_(months).txt        # Overall survival data (TCGA-OV)
 │   ├── README.md                            # Data description
 │   ├── fig2.RData                           # Pre-processed objects for Figure 2 (R)
-│   ├── fig4.RData                           # Pre-processed objects for Figure 4 (R)
+│   ├── fig3.RData                           # Pre-processed objects for Figure 3 (R)
 │   
 │
 ├── scripts/
 │   ├── README.md                            # Scripts description
 │   ├── fig2.Rmd                             # Figure 2: KM curves, UpSet, correlation matrix
-│   ├── fig4.Rmd                             # Figure 4: miRNA–target interaction networks, exosome enrichment analyses, and pathway enrichment visualizations.
+│   ├── fig3.Rmd                             # Figure 3: KM, Score Prognosis, heatmap for TCGA data
 │   ├── ml_pipeline_miRNA_clinical.py        # Full ML training pipeline (RFE + GridSearch)
 │   └── prepare_miRNAisoform_prognosis_dataset.R  # miRNA isoform preprocessing script
 │
