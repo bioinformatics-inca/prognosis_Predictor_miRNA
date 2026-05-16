@@ -20,7 +20,7 @@ library(pheatmap)     # Clustered heatmap with annotations
 ```
 
 ```{r}
-load("~/data/fig4.RData")  # Load pre-saved R objects: preditos, data, all_clinical_miR
+load("~data/fig4.RData")  # Load pre-saved R objects: preditos, data, all_clinical_miR
 ```
 
 ```{r}
