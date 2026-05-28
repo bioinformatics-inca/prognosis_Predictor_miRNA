@@ -19,7 +19,7 @@
 #   counts_log10, resSig_top100, hc, ann, coll, cores_heatmap,
 #   DEG_target, cells_long, label_fun, df
 #
-# Author: Cristiane Esteves
+# Author: Cristiane Esteves and Helena Zancanaro
 # ==============================================================================
 
 # ----------------------------- 1. Configuration -------------------------------
